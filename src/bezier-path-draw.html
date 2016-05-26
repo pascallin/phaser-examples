@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="../js/phaser.min.js"></script>
+</head>
+<body>
+<div id="game"></div>
+<script>
+    var game = new Phaser.Game(800,600, Phaser.AUTO, 'game');
+
+    var PhaserGame = function() {
+        this.bmd = null;
+        // points arrays - one for x and one for y
+        this.points = {
+            'x': [0, 200, 120, 456, 640],
+            'y': [0, 300, 120, 156, 480]
+        };
+    };
+
+    PhaserGame.prototype = {
+        create: function() {
+            this.increment = 1 / game.width;
+            this.i = 0;
+
+            // Draw the path
+            this.bmd = this.add.bitmapData(this.game.width, this.game.height);
+            this.bmd.addToWorld();
+            for (var i = 0; i < 1; i += this.increment) {
+                var px = this.math.bezierInterpolation(this.points.x, i);
+                var py = this.math.bezierInterpolation(this.points.y, i);
+                this.bmd.rect(px, py, 3, 3, 'rgba(255, 255, 255, 1)');
+            }
+        }
+    };
+
+    window.onload = function() {
+        game.state.add('Game', PhaserGame, true);
+    }
+</script>
+</body>
+</html>

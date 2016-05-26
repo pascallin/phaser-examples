@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="../js/phaser.min.js"></script>
+</head>
+<body>
+<div id="game"></div>
+<script>
+    //要用canvas才能画。。。
+    var game = new Phaser.Game(800,600, Phaser.CANVAS, 'game');
+
+    var PhaserGame = function() {
+        this.bmd = null;
+        // points arrays - one for x and one for y
+        this.points = {
+            'x': [0, 200, 120, 456, 640],
+            'y': [0, 300, 120, 156, 480]
+        };
+    };
+
+    PhaserGame.prototype = {
+        preload: function() {
+            game.load.image('ball', '../assets/sprites/pangball.png');
+        },
+        create: function() {
+            this.stage.backgroundColor = '#eee';
+            this.increment = 1 / game.width;
+            this.i = 0;
+            this.timer1Stopped = true;
+            this.timer1 = null;
+
+
+            // Somewhere to draw to
+            this.bmd = this.add.bitmapData(this.game.width, this.game.height);
+            this.bmd.addToWorld();
+
+            // create the bird sprite - we will make this sprite
+            // follow the motion path by using the plot function
+            this.birdSprite = game.add.sprite(0, 0, "ball");
+            this.birdSprite.anchor.setTo(0.5, 0.5);
+        },
+        update: function() {
+            // this just takes care of resetting
+            // the timer so the movement repeats
+            if (this.timer1Stopped) {
+                this.timer1Stopped = false;
+                this.timer1 = this.game.time.create(true);
+                this.timer1.loop(1, this.plot, this);
+                this.timer1.start();
+            }
+        },
+        plot: function() {
+            var posx = this.math.bezierInterpolation(this.points.x, this.i);
+            var posy = this.math.bezierInterpolation(this.points.y, this.i);
+
+            // Draw the path
+            this.bmd.circle(posx, posy, 16, "#00FFFF");
+
+            this.birdSprite.x = posx;
+            this.birdSprite.y = posy;
+            this.i += this.increment;
+            if (posy > 480) {
+                this.timer1.stop();
+                this.timer1.destroy();
+                this.i = 0;
+//                this.timer1Stopped = true;
+            }
+        }
+    };
+
+    window.onload = function() {
+        game.state.add('Game', PhaserGame, true);
+    }
+</script>
+</body>
+</html>
